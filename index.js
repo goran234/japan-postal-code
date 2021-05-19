@@ -66,7 +66,7 @@ exports.get = function (zip_code, callback) {
     if ( chr > 57 ) continue;
     nzip += vzip.charAt(i);
   }
-  if (nzip.length < 7 ) return;
+  if (nzip.length < 3 ) return;
 
   // fetch from cache data using upper 3 digit
   var zip3 = nzip.substr(0,3);
@@ -78,7 +78,7 @@ exports.get = function (zip_code, callback) {
 };
 
 var parse = function(nzip, data, callback){
-  var array = data[nzip];
+  var array = data[nzip] ? data[nzip] : Object.values(data)[0];
   // Opera バグ対策：0x00800000 を超える添字は +0xff000000 されてしまう
   var opera = (nzip-0+0xff000000)+"";
   if ( ! array && data[opera] ) array = data[opera];
@@ -93,6 +93,10 @@ var parse = function(nzip, data, callback){
   if ( ! jarea ) jarea = '';              // 町域名
   var jstrt = array[3];
   if ( ! jstrt ) jstrt = '';              // 番地
+  if (!data[nzip] && array.length) {
+    jarea = '';
+    jstrt = '';
+  }
   callback({
     'prefecture': jpref,
     'city': jcity,
